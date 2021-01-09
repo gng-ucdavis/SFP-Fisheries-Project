@@ -80,21 +80,127 @@ n.1=1 #Technically not a parameter
 delta.t=1
 
 ##Trying nesting functions ###I actually like this better
-numbers=function(t) {
-	n<<-n.1*exp(-(mortality(size(t))+fishing(size(t)))*delta.t) ##where n.1 is number of released organism at the prior time point, and delta.t is the change in time frame between n.1 and n
-	print(n)
-}
+# numbers=function(t) {
+	# n<<-n.1*exp(-(mortality(size(t))+fishing(size(t)))*delta.t) ##where n.1 is number of released organism at the prior time point, and delta.t is the change in time frame between n.1 and n
+	# print(n)
+# }
 
-numbers(1)
+# numbers(1)
 
-##Number of crabs harvested within a particular time period from tn to tn-1
-harvest=function(t) {
-	h<<-n.1*fishing(size(t))/(mortality(size(l))+fishing(size(t)))*(1-exp(-(mortality(size(t))+fishing(size(t)))*delta.t))
-	print(c('size',l))
-	print(c('mortality', m))
-	print(c('fishing', f))
-	print(c('numbers', n))
-	print(c('harvest', h))
-}
+# ##Number of crabs harvested within a particular time period from tn to tn-1
+# harvest=function(t) {
+	# h<<-n.1*fishing(size(t))/(mortality(size(t))+fishing(size(t)))*(1-exp(-(mortality(size(t))+fishing(size(t)))*delta.t))
+	# print(c('size',l))
+	# print(c('mortality', m))
+	# print(c('fishing', f))
+	# print(c('numbers', n))
+	# print(c('harvest', h))
+# }
 
 ###Continue from here by running through a vector of t's
+###12/18/20 How do I actually get the function to be a proper product?
+	###A dataframe obviously?
+	###With time as one column, and then the respective parameters in the rest
+	###But because you call the respecitve response variables as global variables, it should actually be rather easy to construct the dataframe
+			###Except!!! It's not that easy. The numbers function requires recursion because it builds upon the previous time point, which also means the harvest function doesn't work above!!
+					##Great for conceptual testing but actually needs to be fixed so that I can incorporate a time span 
+							##Will do that below. Commenting out functions numbers/harvest above
+
+##Create forloop? Yaaas forloops
+t=seq(from=0, to=100, by=1) ##Need to figure out if starts at 1 or 0 for time. ##Might actually want 0 because that will give reference size for crabs (and relevant parameters following that)
+n=rep(0, length(t))
+h=rep(0, length(t))
+n[1]=100
+delta.t=1
+
+numbers=function(t) {
+	n[i+1]<<-n.1*exp(-(mortality(size(t))+fishing(size(t)))*delta.t) ##where n.1 is number of released organism at the prior time point, and delta.t is the change in time frame between n.1 and n
+}
+
+harvest=function(t) {
+	h[i+1]<<-n.1*fishing(size(t))/(mortality(size(t))+fishing(size(t)))*(1-exp(-(mortality(size(t))+fishing(size(t)))*delta.t))
+}
+
+
+for(i in 1:length(t))
+{
+	n.1=n[i]
+	numbers(t[i])
+	harvest(t[i])	
+}
+t.1=c(t, max(t)+1)
+plot(h~t.1)
+plot(n~t.1)
+####The above function may work but needs to be double checked 12/18/20
+
+##Starting 1/8/21
+##Need to reacquaint myself with code from above
+##Just plotting numbers over time looks to be an exponential decay and that looks right? (Except maybe less so)
+
+##Revamping the numbers and harvest function just to record mortality, size, and fishing parameters. Helps me make sure that the functions are working correctly
+t=seq(from=0, to=100, by=1) ##Need to figure out if starts at 1 or 0 for time. ##Might actually want 0 because that will give reference size for crabs (and relevant parameters following that)
+n=rep(0, length(t))
+h=rep(0, length(t))
+l=rep(0, length(t))
+s=rep(0, length(t))
+
+
+n[1]=1000
+delta.t=1
+
+numbers=function(t, i) {
+	# n[i+1]<<-n.1*exp(-(mortality(size(t))+fishing(size(t)))*delta.t) ##where n.1 is number of released organism at the prior time point, and delta.t is the change in time frame between n.1 and n
+	####So it's not technically n.1 right??? It's n[i] rather than n[i+1] ##Okay, changing function on 1/8/21 (scary that I'm finding errors now)
+				##Okay, looking at forloop at line 127, you do account for the fact that n.1 is n[i] so no errors actually
+	n[i+1]<<-n[i]*exp(-(mortality(size(t[i]))+fishing(size(t[i])))*delta.t) ###And technically, i is a variable in the function (Yep)
+}
+
+##Clean up the above code and make into forloop
+for(i in 1:length(t))
+{
+	numbers(t=t[i], i=i)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+####The functions below are not currently important but will need them at some point to see how extraneous parameters change with time
+harvest(t)
+numbers(t)
+fishing(t)
+mortality(t)
+size(t)
+data=data.frame(time=t, size=l, mortality=m, fishing=f, numbers=n, harvest=h)
+
+head(data)
+plot(size~time, data=data)
+plot(mortality~time, data=data)
+plot(fishing~time, data=data)
+plot(numbers~time, data=data)
+plot(harvest~time, data=data)
+
