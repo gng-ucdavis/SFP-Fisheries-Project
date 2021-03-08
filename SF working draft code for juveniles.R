@@ -12,11 +12,11 @@ size=function(t){
 
 t=seq(0, 365, by =1) ##assume day
 length=size(t)
-plot(length~t) ##excellent, growth output seems to match paper's data
+plot(length~t, ylab='Carapace width (mm)', xlab='Days', cex.axis=1.5, cex.lab=1.5) ##excellent, growth output seems to match paper's data
 
 ##Mortality function
-mr=1 ###Most basic, I need some number for mr (at corresponding lr)
-lr=0.5
+mr=0.0176 ###Using values from 'Calculating mortality rates for juveniles'
+lr=5
 
 mortality=function(l){
 	m=mr*(lr/l)
@@ -31,7 +31,7 @@ plot(m~t)
 ##Should note that f and m are 'rate' in Nexp(rt) so can be any positive numbers (greater than 1 less than 1, it's all good). But doesn't have any meaningful units. It's not %/time period
 f.inf=2.96 #SE 0.315
 # # q=-1.58 ##Pretty sure q has to be a negative number or equation should have a (-) sign. Going to make q solely positive and put (-) in equation
-q=0.158 ##SE 0.126 ##Maybe I want a different distribution than normal for this parameter (has to be soley positive, gamma or use absolute values)
+q=0.158 ##SE 0.126 ##Maybe I want a different distribution than normal for this parameter (has to be solely positive, gamma or use absolute values)
 lc=108.3 ##SE 5.8 #
 
 fishing=function(l) {
@@ -45,7 +45,7 @@ plot(f~t)
 ##Construct actual forloop
 ##Great everything works in theory and really, all I need now is to fill in numbers
 numbers=function(t, i) {
-	num=n[i]*exp(-(mortality(size(t))+fishing(size(t)))*delta.t) ###And technically, i is a variable in the function (Yep)
+	num=n[i]*exp(-(mortality(size(t))+fishing(size(t)))*delta.t)
 }
 
 t=seq(from=0, to=365, by=1) ##Need to figure out if starts at 1 or 0 for time. ##Might actually want 0 because that will give reference size for crabs (and relevant parameters following that)
@@ -55,7 +55,7 @@ m=rep(0, length(t))
 s=rep(0, length(t))
 f=rep(0, length(t))
 
-n[1]=1000
+n[1]=1
 delta.t=1
 
 
@@ -69,7 +69,22 @@ for(i in 1:length(t))
 
 t.1=c(t, max(t)+1)
 par(mfrow=(c(2,2)))
-plot(n~t.1)
-plot(m~t.1)
-plot(s~t.1)
-plot(f~t.1)
+plot(s~t.1, ylab='Crab width (mm)', xlab='Days', cex.lab=1.5, cex.axis=1.5)
+text(1, 160, labels=c('a'), cex=2 )
+plot(m~t.1, ylab='Mortality rate', xlab='Days', cex.lab=1.5, cex.axis=1.5)
+text(1, 0.035, labels=c('b'), cex=2 )
+plot(f~t.1, ylab='Fishing mortality', xlab='Days', cex.lab=1.5, cex.axis=1.5)
+text(1, 2.8, labels=c('c'), cex=2 )
+plot(n~t.1, ylab='Cohort proportion survival', xlab='Days', cex.lab=1.5, cex.axis=1.5)
+text(1, 0.9, labels=c('d'), cex=2 )
+
+final.data=data.frame(n, m, s,f, t.1)
+final.data[final.data$s<100,]$n
+##So it looks like 0.000153 make it to 100mm (mostly because of high fishing mortality)
+0.000153*100 #percent
+
+##0.09*0.000153 (larval and juvenile survival)
+0.09*0.000153 
+1800000*1.377e-05
+
+0.09*0.000153*100

@@ -1,0 +1,98 @@
+##Janky test function if we want to back calculate m given that we know the proportino of larvae that makes it to x days
+# t=seq(0, 15, by =0.1)
+
+# rate=seq(0, 2, by = 0.01)
+# y.fin=rep(0, length(rate))
+# for(i in 1:length(rate)){
+# r=rate[i]
+# y=exp(-r*t)
+# # plot(y~t)
+# y.fin[i]=y[length(y)]
+# }
+
+# plot(y.fin~rate)
+
+
+
+##Need to create a larvae growth function (I have one but it incorproates noise which is just too hard for this simulation. Going to just use the mean for each stage)
+larvae.size=function(t){
+	if(t<3.5){
+	cl=0.49 #runif(1, 0.44, 0.54)	
+	}
+	
+	else if(t<7.5 & t>=3.5){
+	cl= 0.75 #runif(1, 0.72, 0.77)
+	}
+	
+	else if(t<9.5 & t>=7.5){
+	cl=0.83 #runif(1, 0.79, 0.87)
+	}
+	
+	else if(t<12 & t>=9.5){
+	cl=1.02 #runif(1, 0.98, 1.06)
+	}
+	
+	else if(t<=15.5 & t>=12){
+	cl=1.75 #runif(1, 1.69, 1.81)
+	}
+	
+	else print('not larva')
+}
+
+##Quick plot just ot make sure that function is working
+t=seq(from =0, to =15.5, by =0.5)
+cl=rep(0, length(t))
+for(i in 1:length(t))
+{
+	cl[i]=larvae.size(t[i])
+}
+plot(cl~t)
+
+
+###From Liao et al. 2011: Get 39% survival after 4 days (my time funciton is in days)
+mortality=function(l){
+	m=mr*(lr/l)
+}
+
+mort.test=seq(from=0.1, to=0.15, by=0.001)
+pop.at.4days=rep(5, length(mort.test))
+
+for(j in 1:length(mort.test))
+{
+	mr=mort.test[j]
+	lr=1 #Arbitrarily making lr =1
+
+#Sub in mortality function for just r constant
+numbers=function(t, i) {
+	num=n[i]*exp(-(mortality(larvae.size(t)))*delta.t) ###Removed fishing mortrality
+}
+
+delta.t=0.5 ##Resolution between time points
+t=seq(from=0, to=15.5, by=delta.t) 
+n=rep(0, length(t))
+m=rep(0, length(t))
+s=rep(0, length(t))
+
+n[1]=1 ##Starting population size
+
+for(i in 1:length(t))
+{
+	n[i+1]=numbers(t=t[i], i=i)
+	s[i+1]=larvae.size(t[i])
+	m[i+1]=mortality(larvae.size(t[i]))
+}
+
+t.1=c(t, max(t)+delta.t)
+x=data.frame(n, t.1)
+pop.at.4days[j]=x[x$t.1==4,]$n
+par(mfrow=(c(2,2)))
+plot(n~t.1)
+plot(m~t.1)
+plot(s~t.1)
+}
+
+plot(pop.at.4days~mort.test) ###Looks like it works!! Side detour where I muck around with the growth function just to make sure everything is working (yes, fwiw, size seems to play a role in your simulation )
+cbind(pop.at.4days, mort.test)
+
+###Done!!! Mortality is at 0.12 a lr of 1
+

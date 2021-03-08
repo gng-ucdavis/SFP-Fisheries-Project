@@ -106,7 +106,7 @@ delta.t=1
 					##Great for conceptual testing but actually needs to be fixed so that I can incorporate a time span 
 							##Will do that below. Commenting out functions numbers/harvest above
 
-##Create forloop? Yaaas forloops
+##Create forloop? 
 t=seq(from=0, to=100, by=1) ##Need to figure out if starts at 1 or 0 for time. ##Might actually want 0 because that will give reference size for crabs (and relevant parameters following that)
 n=rep(0, length(t))
 h=rep(0, length(t))

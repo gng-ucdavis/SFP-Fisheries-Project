@@ -60,7 +60,7 @@ n[1]=1000
 delta.t=1
 
 
-##Clean up the above code and make into forloop ####Yes!!!!! This works!!!1
+##Clean up the above code and make into forloop ####Yes, This works
 for(i in 1:length(t))
 {
 	n[i+1]=numbers(t=t[i], i=i)
