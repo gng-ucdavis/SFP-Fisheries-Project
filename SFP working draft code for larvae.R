@@ -25,7 +25,7 @@ larvae.size=function(t){
 	
 	else print('not larva')
 }
-t=seq(from =0, to =15.5, by =0.5)
+t=seq(from =0, to =15.5, by =1)
 cl=rep(0, length(t))
 for(i in 1:length(t))
 {
@@ -47,7 +47,7 @@ numbers=function(t, i) {
 }
 
 ##Hmm.. for larvae, time span is limited to 15.5 days and in this case, maybe want higher resolution time point (like 0.5 days?)
-delta.t=0.5 ##Resolution between time points
+delta.t=0.5 ##Resolution between time points. In case you're wondering, your final estimates do not change whether you use 0.5 or 1 for delta.t (as long as those intervals are in the same unit as mortality (per day))
 t=seq(from=0, to=15.5, by=delta.t) 
 n=rep(0, length(t))
 m=rep(0, length(t))

@@ -38,14 +38,14 @@ fishing=function(l) {
 	f=f.inf/(1+exp(-q*(l-lc)))
 }
 
-f=fishing(length)
+f=fishing(length)/365
 plot(f~length)
 plot(f~t)
 
 ##Construct actual forloop
 ##Great everything works in theory and really, all I need now is to fill in numbers
 numbers=function(t, i) {
-	num=n[i]*exp(-(mortality(size(t))+fishing(size(t)))*delta.t)
+	num=n[i]*exp(-(mortality(size(t))+fishing(size(t))/365)*delta.t)
 }
 
 t=seq(from=0, to=365, by=1) ##Need to figure out if starts at 1 or 0 for time. ##Might actually want 0 because that will give reference size for crabs (and relevant parameters following that)
@@ -64,27 +64,31 @@ for(i in 1:length(t))
 	n[i+1]=numbers(t=t[i], i=i)
 	s[i+1]=size(t[i])
 	m[i+1]=mortality(size(t[i]))
-	f[i+1]=fishing(size(t[i]))
+	f[i+1]=fishing(size(t[i]))/365
 }
 
 t.1=c(t, max(t)+1)
 par(mfrow=(c(2,2)))
 plot(s~t.1, ylab='Crab width (mm)', xlab='Days', cex.lab=1.5, cex.axis=1.5)
 text(1, 160, labels=c('a'), cex=2 )
-plot(m~t.1, ylab='Mortality rate', xlab='Days', cex.lab=1.5, cex.axis=1.5)
+plot(m~t.1, ylab='Mortality rate (day^-1)', xlab='Days', cex.lab=1.5, cex.axis=1.5)
 text(1, 0.035, labels=c('b'), cex=2 )
-plot(f~t.1, ylab='Fishing mortality', xlab='Days', cex.lab=1.5, cex.axis=1.5)
+plot(f~t.1, ylab='Fishing mortality (day^-1)', xlab='Days', cex.lab=1.5, cex.axis=1.5)
 text(1, 2.8, labels=c('c'), cex=2 )
 plot(n~t.1, ylab='Cohort proportion survival', xlab='Days', cex.lab=1.5, cex.axis=1.5)
 text(1, 0.9, labels=c('d'), cex=2 )
 
 final.data=data.frame(n, m, s,f, t.1)
 final.data[final.data$s<100,]$n
-##So it looks like 0.000153 make it to 100mm (mostly because of high fishing mortality)
-0.000153*100 #percent
+##So it looks like 0.000153 make it to 100mm (mostly because of high fishing mortality) ###This is wrong because F was in /year and now switched to /day
+###Actual survival percent is 0.65
+0.65*100 #percent
 
 ##0.09*0.000153 (larval and juvenile survival)
-0.09*0.000153 
-1800000*1.377e-05
+0.09*0.65
+1800000*0.0585
 
 0.09*0.000153*100
+
+z=m+f
+plot(z~t.1)
