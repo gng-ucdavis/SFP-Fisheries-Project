@@ -4,12 +4,13 @@
 		##Trying this on 3/l5/21
 		##Big issue is how to store all this data and be able to recover it for plotting purposes
 			##Basically create a dataframe and keep adding to it...
+			##3/26/21 Need to tweak field data calculations to account for different referenced length and incorporate variability 
 
 ##What data do we have for growth?
 	##Look at the script on "modeling zoea growth" for details but the function is as below
 
 
-l=20 ##Number of reps
+l=10000 ##Number of reps
 final.larval.data=NULL
 final.juv.data=NULL
 results=rep(0, l)
@@ -68,7 +69,8 @@ for(i in 1:length(t))
 # plot(cl~t)
 
 ##Add in mortality function
-mr.larvae=0.12 #Got mortality rates from data using 'Calculating mortality rates for larvae' script
+# mr.larvae=rnorm(1, mean=mean(c(0.114, 0.12)), sd=sd(c(0.114, 0.12))) #Got mortality rates from data using 'Calculating mortality rates for larvae' script
+mr.larvae=rnorm(1, mean=0.3972, sd=sd(c(0.114, 0.12))) ##Mortality rates from the field and using sd from lab studies (better than nothing)
 lr.larvae=1
 
 
@@ -105,7 +107,7 @@ t.1.larvae=c(t.larvae, max(t.larvae)+delta.t)
 # text(1, 0.9, labels=c('c'), cex=2 )
 
 larval.data=data.frame(run.larvae, n.larvae,s.larvae,m.larvae, t.1.larvae)
-surv.larvae=larval.data[nrow(larval.data),]$n.larvae
+surv.larvae=larval.data[nrow(larval.data),]$n.larvae ###4/6/21 This line of code only works if you're running 1 simulation. If greater than 1 (like 10,000), then need to do something else. It's just grabbing the estimates for the first simulation which is arbitrary
 #n~0.09 after larvae (9% survival is decent)
 
 
@@ -114,10 +116,10 @@ final.larval.data=rbind(final.larval.data, larval.data)
 
 
 ######Code for juveniles: for simplicity sake, I will leave variables as is and only change variable names for larvae
-l.inf=mean(c(219.8, 204.1, 208, 211.8, 211, 188.6)) ##average adult size (CW) in mm
+l.inf=abs(rnorm(1, mean(c(207.2, 162.5, 206, 169.5, 188.7)), sd(c(207.2, 162.5, 206, 169.5, 188.7)))) ##average adult size (CW) in mm
 l.rel=mean(c(2.38, 2.43)) ##average size at crab stage 1
 # K=mean(c(1.82, 1.8, 1.9, 1.7, 1.64, 1.62)) ####Based on the modeled outputs and the results from Josileen and Menon 2005, I'm pretty sure these K values are annual growth rates. So I'm going to divide them by 365 and work in days
-K=mean(c(1.82, 1.8, 1.9, 1.7, 1.64, 1.62))/365
+K=abs(rnorm(1,mean(c(0.0048, 0.0022, 0.0029, 0.0037, 0.0037)), sd(c(0.0048, 0.0022, 0.0029, 0.0037, 0.0037))))
 
 
 t=seq(0, 365, by =1) ##assume day
@@ -125,21 +127,20 @@ length=size(t)
 # plot(length~t, ylab='Carapace width (mm)', xlab='Days', cex.axis=1.5, cex.lab=1.5) ##excellent, growth output seems to match paper's data
 
 ##Mortality function
-mr=0.0176 ###Using values from 'Calculating mortality rates for juveniles'
-lr=5
+mr=abs(rnorm(1,mean(c(0.309, 0.284, 0.986, 0.851, 0.736)), sd(c(0.309, 0.284, 0.986, 0.851, 0.736)))) ###Using values from 'Calculating mortality rates for juveniles' #Removing the 0.088 value since that is hatchery derived
+lr=1
 
 
 # plot(m~length)
-
 # plot(m~t)
 
 
 ##Fishing function, may have actual data here=
 ##Should note that f and m are 'rate' in Nexp(rt) so can be any positive numbers (greater than 1 less than 1, it's all good). But doesn't have any meaningful units. It's not %/time period
-f.inf=2.96 #SE 0.315
+f.inf=abs(rnorm(1, 4.51, 0.131))
 # # q=-1.58 ##Pretty sure q has to be a negative number or equation should have a (-) sign. Going to make q solely positive and put (-) in equation
-q=0.158 ##SE 0.126 ##Maybe I want a different distribution than normal for this parameter (has to be solely positive, gamma or use absolute values)
-lc=108.3 ##SE 5.8 #
+q=abs(rnorm(1, 0.093, 0.0074)) ##Maybe I want a different distribution than normal for this parameter (has to be solely positive, gamma or use absolute values)
+lc=rnorm(1, 117.76, 1.14) ##SE 5.8 #
 
 fishing=function(l) {
 	f=f.inf/(1+exp(-q*(l-lc)))
@@ -176,20 +177,11 @@ for(i in 1:length(t))
 }
 
 t.1=c(t, max(t)+1)
-####No need to plot if running 10,000 simulations but saving code when messing with real data frame (there's a way to plot it real time rigth?? Oh def but not worth it and just do it in post)
-# par(mfrow=(c(2,2)))
-# plot(s~t.1, ylab='Crab width (mm)', xlab='Days', cex.lab=1.5, cex.axis=1.5)
-# text(1, 160, labels=c('a'), cex=2 )
-# plot(m~t.1, ylab='Mortality rate', xlab='Days', cex.lab=1.5, cex.axis=1.5)
-# text(1, 0.035, labels=c('b'), cex=2 )
-# plot(f~t.1, ylab='Fishing mortality', xlab='Days', cex.lab=1.5, cex.axis=1.5)
-# text(1, 2.8, labels=c('c'), cex=2 )
-# plot(n~t.1, ylab='Cohort proportion survival', xlab='Days', cex.lab=1.5, cex.axis=1.5)
-# text(1, 0.9, labels=c('d'), cex=2 )
+
 
 final.data=data.frame(run, n, m, s,f, t.1)
 # final.data[final.data$s<100,]$n
-surv.juv=final.data[final.data$s<100,]$n[length(final.data[final.data$s<100,]$n)] ##This weird gross piece of code finds the last value for proportion survivng where crabs are right before 100mm
+surv.juv=final.data[final.data$s<100,]$n[length(final.data[final.data$s<100,]$n)] ##This weird gross piece of code finds the last value for proportion survivng where crabs are right before 100mm.  ###4/6/21 This line of code only works if you're running 1 simulation. If greater than 1 (like 10,000), then need to do something else. It's just grabbing the estimates for the first simulation which is arbitrary. ###On second thought, because this is within the forloop, the code actually works. Except it means I can't retroactively get the results once I save it into a dataframe
 
 surv.larvae*surv.juv
 
@@ -197,7 +189,7 @@ surv.larvae*surv.juv
 final.juv.data=rbind(final.juv.data, final.data)
 
 ##Get a dataframe for just results
-results[k]=surv.larvae*surv.juv
+results[k]=surv.larvae*surv.juv #Note that this is in porportion
 }
 
 ####Messing with results
@@ -205,3 +197,50 @@ head(final.larval.data)
 head(final.juv.data)
 hist(results)
 mean(results)
+quantile(results, c(0.025, 0.975))
+sd(results)
+
+##Writing 10000 runs into csv
+# setwd('~/Dropbox/Postdoc/Blue crab stock enhancement project/SFP/SFP Model Code/Results')
+# write.table(final.larval.data, 'larval.field.data.csv', sep=',')
+# write.table(final.juv.data, 'juvenile.field.data.csv', sep=',')
+
+
+###Getting survival estimates post-running code
+final.larval.data=read.csv('~/Dropbox/Postdoc/Blue crab stock enhancement project/SFP/SFP Model Code/Results/larval.data.csv')#for lab based mortality
+head(final.larval.data)
+str(final.larval.data)
+
+final.larval.field.data=read.csv('~/Dropbox/Postdoc/Blue crab stock enhancement project/SFP/SFP Model Code/Results/larval.field.data.csv') #for field based mortality
+head(final.larval.field.data)
+str(final.larval.field.data)
+
+
+final.juv.data=read.csv('~/Dropbox/Postdoc/Blue crab stock enhancement project/SFP/SFP Model Code/Results/juvenile.data.csv') #both this and final.juv.field have the same code and only differ in that parameters are drawn from rnorm. I just wanted to see how different they are based on randomization
+head(final.juv.data)
+
+final.juv.field.data=read.csv('~/Dropbox/Postdoc/Blue crab stock enhancement project/SFP/SFP Model Code/Results/juvenile.field.data.csv')
+head(final.juv.field.data)
+
+tailx=function(x){
+	res=tail(x,1)
+}
+
+##Results using lab based larval mortality
+surv.larvae=with(final.larval.data, aggregate(list(n.larvae=n.larvae), list(run=run.larvae), tailx))
+surv.juv=with(final.juv.data[final.juv.data$s<115,], aggregate(list(n.juv=n), list(run=run), tailx))
+results=surv.larvae$n.larvae*surv.juv$n.juv
+hist(results)
+mean(results)
+median(results)
+quantile(results, c(0.025, 0.975))
+
+
+##Results using field based larval mortality
+surv.larvae=with(final.larval.field.data, aggregate(list(n.larvae=n.larvae), list(run=run.larvae), tailx))
+surv.juv=with(final.juv.data[final.juv.data$s<102,], aggregate(list(n.juv=n), list(run=run), tailx)) #Keeping juvenile data the same since that doesn't change whether which larval mortaltity we choose
+results=surv.larvae$n.larvae*surv.juv$n.juv
+hist(results)
+mean(results)
+median(results)
+quantile(results, c(0.025, 0.975))

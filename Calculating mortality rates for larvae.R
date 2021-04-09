@@ -3,8 +3,9 @@
 	#Not a simple constant proportion because larvae grow over time and we explicitly say that mortality is related to size
 	##Basically brute forcing this approach
 ##Also TLDR but given the survival rate from Liao et al., we get a mr of 0.12 at a lr of 1
+##3/29/21 Want to try this for Marinelle's data also
 
-##Need to create a larvae growth function (I have one but it incorproates noise which is just too hard for this simulation. Going to just use the mean for each stage)
+##Need to create a larvae growth function (I have one but it incorporates noise which is just too hard for this simulation. Going to just use the mean for each stage)
 larvae.size=function(t){
 	if(t<3.5){
 	cl=0.49 #runif(1, 0.44, 0.54)	
@@ -40,11 +41,12 @@ plot(cl~t, ylab='Larval length (mm)', xlab='Days', cex.axis=1.5, cex.lab=1.5)
 
 
 ###From Liao et al. 2011: Get 39% survival after 4 days (my time funciton is in days)
+###From Marinelle: Get 11% survival from z1 to crab instar (which in my model is roughly 16 days) 
 mortality=function(l){
 	m=mr*(lr/l)
 }
 
-mort.test=seq(from=0.1, to=0.15, by=0.001)
+mort.test=seq(from=0.39, to=0.4, by=0.0001)
 pop.at.4days=rep(5, length(mort.test))
 
 for(j in 1:length(mort.test))
@@ -74,7 +76,8 @@ for(i in 1:length(t))
 
 t.1=c(t, max(t)+delta.t)
 x=data.frame(n, t.1)
-pop.at.4days[j]=x[x$t.1==4,]$n
+pop.at.4days[j]=x[x$t.1==15.5,]$n ##This is the part of the code you need to change when calculating mr from other sources. Just change what day you are filtering by. For Marinelle, it's the end of the simulation (day 15.5) x[x$t.1==4,]$n
+						###Now doing this for field data, which is also the end of the larval phase so going with 15.5 days also. Survival of 0.000462 (yeesh)
 par(mfrow=(c(2,2)))
 plot(n~t.1)
 plot(m~t.1)
@@ -84,4 +87,7 @@ plot(s~t.1)
 plot(pop.at.4days~mort.test) 
 cbind(pop.at.4days, mort.test)
 
-###Done!!! Mortality is at 0.12 a lr of 1
+###Done!!! Mortality is at 0.12 a lr of 1 from Liao et al. 2011
+# 0.114 with lr of 1 from Marinelle (Number tracks, looks like survival is around 10% after PLD)
+
+###For field mortality Bryars and Havenhand (2004), it is 0.3972 given that 0.00046 proportion survived till megalopae aka 15.5 days
