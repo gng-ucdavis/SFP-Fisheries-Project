@@ -962,3 +962,33 @@ plot(f~s, ylab='Fishing mortality', xlab='Size', cex.lab=2, cex.axis=2, data=fin
 for(i in 1:length(unique(final.juv.data$run))){#
 	lines(f~s, col=col.alpha('green', 0.1),data=final.juv.data[final.juv.data$run==i,])#
 }
+final.larval.data=read.csv('~/Dropbox/Postdoc/Blue crab stock enhancement project/SFP/SFP Model Code/Results/larval.data.csv')#for lab based mortality
+str(final.larval.data)
+final.larval.field.data=read.csv('~/Dropbox/Postdoc/Blue crab stock enhancement project/SFP/SFP Model Code/Results/larval.field.data.csv') #for field based mortality#
+head(final.larval.field.data)#
+str(final.larval.field.data)#
+final.juv.data=read.csv('~/Dropbox/Postdoc/Blue crab stock enhancement project/SFP/SFP Model Code/Results/juvenile.data.csv') #both this and final.juv.field have the same code and only differ in that parameters are drawn from rnorm. I just wanted to see how different they are based on randomization#
+head(final.juv.data)#
+#
+final.juv.field.data=read.csv('~/Dropbox/Postdoc/Blue crab stock enhancement project/SFP/SFP Model Code/Results/juvenile.field.data.csv')#
+head(final.juv.field.data)
+final.larval.field.data=read.csv('~/Dropbox/Postdoc/Blue crab stock enhancement project/SFP/SFP Model Code/Results/larval.field.data.csv') #for field based mortality#
+head(final.larval.field.data)#
+str(final.larval.field.data)#
+final.juv.data=read.csv('~/Dropbox/Postdoc/Blue crab stock enhancement project/SFP/SFP Model Code/Results/juvenile.data.csv') #both this and final.juv.field have the same code and only differ in that parameters are drawn from rnorm. I just wanted to see how different they are based on randomization#
+head(final.juv.data)#
+#
+final.juv.field.data=read.csv('~/Dropbox/Postdoc/Blue crab stock enhancement project/SFP/SFP Model Code/Results/juvenile.field.data.csv')#
+head(final.juv.field.data)
+tailx=function(x){#
+	res=tail(x,1)#
+}
+surv.larvae=with(final.larval.data, aggregate(list(n.larvae=n.larvae), list(run=run.larvae), tailx))
+surv.juv=with(final.juv.data[final.juv.data$s<115,], aggregate(list(n.juv=n), list(run=run), tailx))
+results=surv.larvae$n.larvae*surv.juv$n.juv
+hist(results)
+min(results)
+mean(final.juv.data$s)
+head(surv.juv)
+surv.juv
+hist(results)
