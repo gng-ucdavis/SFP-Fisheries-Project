@@ -10,7 +10,7 @@ size=function(t){
 	l=l.inf-(l.inf-l.rel)*exp(-K*t)
 }
 
-t=seq(0, 365, by =1) ##assume day
+t=seq(0, 365, by =1) ##assume day ######Bernal, if you want to look at larger size classes, I recommend changing the number of days the model runs from 365 days to something longer like 600 days or so since the crabs might not grow to that larger size class at only 365 days 
 length=size(t)
 plot(length~t, ylab='Carapace width (mm)', xlab='Days', cex.axis=1.5, cex.lab=1.5) ##excellent, growth output seems to match paper's data
 
@@ -79,8 +79,7 @@ plot(n~t.1, ylab='Cohort proportion survival', xlab='Days', cex.lab=1.5, cex.axi
 text(1, 0.9, labels=c('d'), cex=2 )
 
 final.data=data.frame(n, m, s,f, t.1)
-final.data[final.data$s<100,]$n
-##So it looks like 0.000153 make it to 100mm (mostly because of high fishing mortality) ###This is wrong because F was in /year and now switched to /day
+final.data[final.data$s<115,]$n #######Hi Bernal, if you would like to see the survival of juveniles to a different size than 115mm, just change this value to your desired size class. For instance, if you want to know survival at 130mm, change the value from 115 to 130.
 ###Actual survival percent is 0.65
 0.65*100 #percent
 
